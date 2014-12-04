@@ -311,36 +311,6 @@ class PassportPayments {
 	}
 
 	/**
-		* Function to add a new product
-		* @param string productName  //mandatory parameter
-    	* @param string rateInCents //mandatory parameter
-    	* @return string productId 
-	**/
-
-	public function addProduct($product){
-		$this->authenticate();
-		$uri = "/product/add";
-		$response = $this->requestResource(self::METHOD_POST, $uri, $product);
-		return $response;
-	}
-
-
-	/**
-		* Function to update an existing product
-		* @param string productId  //mandatory parameter
-		* @param string productName  
-    	* @param string rateInCents 
-    	* @return string success message 
-	**/
-
-	public function updateProduct($productId, $product){
-		$this->authenticate();
-		$uri = "/product/".$productId;
-		$response = $this->requestResource(self::METHOD_POST, $uri, $product);
-		return $response;
-	}
-
-	/**
 		* Function to get all / one product details
 		* @param $productId // optional
 		* @return product details in json
@@ -358,25 +328,6 @@ class PassportPayments {
 
 		return $response;
 	}
-
-
-	/**
-		* Function to get all / one product details
-		* @param $productId
-		* @return success message
-	**/
-
-	public function deleteProduct( $productId ){
-		$this->authenticate();
-		$productId = (string) $productId;
-		$uri = "/product/".$productId;
-
-		$response = $this->requestResource(self::METHOD_DELETE, $uri);
-
-		return $response;
-	}
-
-
 
 	/**
 		* Funtion to get authentication token from oauth
