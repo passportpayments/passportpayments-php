@@ -10,9 +10,9 @@ class PassportPayments {
 
 	const STATUS_SUCCESS = 200;
 
-	// app_id and app_secret provided by PassportPayements
-	protected $app_id = null;
-	protected $app_secret = null;
+	// client_id and client_secret provided by PassportPayements
+	protected $client_id = null;
+	protected $client_secret = null;
 	protected $end_point = null;
 
 	// app_token given by the oauth authentication
@@ -26,33 +26,33 @@ class PassportPayments {
 
 	/**
 		* Default constructor
-		* @param string appId 
-		* @param string appSecret
+		* @param string clientId 
+		* @param string clientSecret
 	**/
 
-	function __construct ( $appId, $appSecret, $endPoint = self::API_URL ){
-		$this->setAppId ( $appId );
-		$this->setAppSecret ( $appSecret );
+	function __construct ( $clientId, $clientSecret, $endPoint = self::API_URL ){
+		$this->setClientId ( $clientId );
+		$this->setClientSecret ( $clientSecret );
 		$this->setEndPoint ($endPoint);
 	}
 
 
 	/**
 		* Initializing api app ID
-		* @param string appId for PassportPayments application
+		* @param string clientId for PassportPayments application
 	*/
 
-	private function setAppId ( $appId ){
-		$this->app_id = (string)$appId;
+	private function setClientId ( $clientId ){
+		$this->client_id = (string)$clientId;
 	}
 
 	/**
 		* Initializing user app secret
-		* @param string appSecret for PassportPayments application
+		* @param string clientSecret for PassportPayments application
 	*/
 
-	private function setAppSecret ( $appSecret ){
-		$this->app_secret = (string)$appSecret;
+	private function setClientSecret ( $clientSecret ){
+		$this->client_secret = (string)$clientSecret;
 	}
 
 	
@@ -385,8 +385,8 @@ class PassportPayments {
 	private function authenticate() {
 		$uri = "/oauth/accesstoken";
         $params = array(
-			            'client_id' => $this->app_id,
-			            'client_secret' => $this->app_secret,
+			            'client_id' => $this->client_id,
+			            'client_secret' => $this->client_secret,
 			            'grant_type' => 'client_credentials'
 			        	);
         
