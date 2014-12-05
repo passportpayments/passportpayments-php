@@ -279,7 +279,7 @@ Response:
 In order to refund a transaction, you need a transaction id.
 
 ```php
-$transactionId = 'tran_54807f698f64d;
+$transactionId = 'tran_54807f698f64d';
 $resp = $pp->transactionRefund( $transactionId );
 ```
 
