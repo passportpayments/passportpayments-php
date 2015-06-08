@@ -30,7 +30,7 @@ $resp = $pp->getCardToken( $cardnumber, $expmonth, $expyear, $cvv, $nameoncard )
     "data" : {
         "card_tmptoken" : "tok_xxxxxxxxxxx"
     },
-    "message" : "Use the temporary card token to make one time payment or associate with any customer."
+    "message" : "Use the temporary card token to make one time payment or associate with any customer.",
     "status" : 200
 }
 ```
