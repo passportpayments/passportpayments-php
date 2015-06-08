@@ -8,10 +8,35 @@ require_once('PassportPayments.php');
 $appId = ”xxxxxxxxx”;
 $appSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 $endPoint = 'https://sandbox.passportpayments.com';
-$pp = new PassportPayments($appId, $appSecret, $endPoint);
+$pp = new PassportPayments($appId, $appSecret, $publicKey, $endPoint);
 ```
 
 * $endPoint is by default pointed to sandbox. So, if you don’t pass endPoint, it’ll take you to the sandbox. If you are on live mode, and using live mode credentials, then use 'https://api.passportpayments.com' as the endpoint.
+
+
+### Get card Token: 
+Get the card token like this -
+```php
+$cardnumber = "4111111111111111";
+$expmonth = "01";
+$expyear = "23";
+$cvv = "123";
+$nameoncard = "Gilderoy Lockhart";
+$resp = $pp->getCardToken( $cardnumber, $expmonth, $expyear, $cvv, $nameoncard );
+```
+
+```json
+{
+    "data" : {
+        "card_tmptoken" : "tok_xxxxxxxxxxx"
+    },
+    "message" : "Use the temporary card token to make one time payment or associate with any customer."
+    "status" : 200
+}
+```
+Here you get the customer id. Now you can perform all the customer based operations with this id.
+
+
 
 ### Save Customer : 
 Now you can add a customer like this -
