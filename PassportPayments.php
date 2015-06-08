@@ -3,7 +3,7 @@
 class PassportPayments {
 
 	// define version
-	const API_VERSION = '1.0.0';
+	const API_VERSION = '1.0.01';
 
 	// define api base url
 	const API_URL = 'https://sandbox.passportpayments.com';
@@ -14,6 +14,7 @@ class PassportPayments {
 	protected $client_id = null;
 	protected $client_secret = null;
 	protected $end_point = null;
+	protected $public_key = null;
 
 	// app_token given by the oauth authentication
 	protected $access_token = null;
@@ -30,10 +31,11 @@ class PassportPayments {
 		* @param string clientSecret
 	**/
 
-	function __construct ( $clientId, $clientSecret, $endPoint = self::API_URL ){
+	function __construct ( $clientId, $clientSecret, $publicKey, $endPoint = self::API_URL ){
 		$this->setClientId ( $clientId );
 		$this->setClientSecret ( $clientSecret );
 		$this->setEndPoint ($endPoint);
+		$this->setPublicKey ($publicKey);
 	}
 
 
@@ -66,12 +68,70 @@ class PassportPayments {
 	}
 
 	/**
+		* Initializing user api Key
+		* @param string appKey for PassportPayments application
+	**/
+
+	private function setPublicKey ( $publicKey ){
+		$this->public_key = (string)$publicKey;
+	}
+
+	/**
 		* Funtion to get the version number
 	**/
 
 	public function getVersin(){
 		return API_VERSION;
 	}
+
+	/**
+		* Function to get temporary card token
+		* @param string cardnumber
+        * @param string expmonth 
+        * @param string expyear
+        * @param string cvv // optional
+        * @param string nameoncard // optional
+        * @return json customer details
+	**/
+
+	public function getCardToken( $cardnumber, $expmonth, $expyear, $cvv = "", $nameoncard = "" ) {
+
+		$this->authenticate();
+
+		$uri = "/cardtoken";
+		$params['cardnumber'] = $cardnumber;
+		$params['expmonth'] = $expmonth;
+		$params['expyear'] = $expyear;
+		$params['cvv'] = $cvv;
+		$params['nameoncard'] = $nameoncard;
+		$params['appkey'] = $this->public_key;
+
+		$request = $this->requestResource(self::METHOD_GET, $uri, $params);
+		return $request;
+	}
+
+	/**
+		* Function to get pretransaction token
+		* @param string cardtmptoken
+        * @param string amount 
+        * @param string email
+        * @return json
+	**/
+
+	public function getPreTransactionToken ( $cardtmptoken, $amount, $email = "" ) {
+
+		$this->authenticate();
+
+		$uri = "/getpretransactiontoken";
+		$params['cardtmptoken'] = $cardtmptoken;
+		$params['amount'] = $amount;
+		$params['email'] = $email;
+		$params['appkey'] = $this->public_key;
+
+		$request = $this->requestResource(self::METHOD_GET, $uri, $params);
+		return $request;
+	}
+
 
 
 	/**
@@ -256,6 +316,20 @@ class PassportPayments {
 		return $response;
 	}
 
+	/**
+		* Function to get charge by pretransaction token
+		* @param string preTransactionToken
+		* @return json response
+	**/
+
+
+	public function captureByPreTransactionToken( $preTransactionToken ) {
+		$this->authenticate();
+		$uri = "/charges/capturebytoken/".$preTransactionToken;
+		$response = $this->requestResource(self::METHOD_POST, $uri);
+		return $response;
+	}
+
 
 
 	/**
@@ -269,9 +343,6 @@ class PassportPayments {
 		$uri = "/charges/void/".$transactionId;
 
 		$response = $this->requestResource(self::METHOD_POST, $uri);
-		if ($response->status == self::STATUS_SUCCESS){
-			return $response->data->transactionid;
-		}
 		return $response;
 	}
 
@@ -286,9 +357,6 @@ class PassportPayments {
 		$uri = "/charges/refund/".$transactionId;
 
 		$response = $this->requestResource(self::METHOD_POST, $uri);
-		if ($response->status == self::STATUS_SUCCESS){
-			return $response->data->transactionid;
-		}
 		return $response;
 	}
 
@@ -356,9 +424,14 @@ class PassportPayments {
 	    $accessToken = $this->access_token;
 
 	    $apiUrl = $this->end_point . $apiUri;
+
 	    if(!empty($accessToken)){
-        	$params['access_token'] = $accessToken;
+        	$tmpparams['access_token'] = $accessToken;
+        	$p = json_encode($params);
+        	$tmpparams['phpcrypt'] = $this->cryptoJsAesEncrypt($this->client_secret, $p);
+        	$params = $tmpparams;
         }
+
         $params_uri = '';
         $curlOptions = array();
        
@@ -399,6 +472,21 @@ class PassportPayments {
         $response = json_decode($auth);
         error_log(json_encode($response));
         return $response;
+	}
+
+	private function cryptoJsAesEncrypt($passphrase, $value){
+	    $salt = openssl_random_pseudo_bytes(8);
+	    $salted = '';
+	    $dx = '';
+	    while (strlen($salted) < 48) {
+	        $dx = md5($dx.$passphrase.$salt, true);
+	        $salted .= $dx;
+	    }
+	    $key = substr($salted, 0, 32);
+	    $iv  = substr($salted, 32,16);
+	    $encrypted_data = openssl_encrypt(json_encode($value), 'aes-256-cbc', $key, true, $iv);
+	    $data = array("ct" => base64_encode($encrypted_data), "iv" => bin2hex($iv), "s" => bin2hex($salt));
+	    return json_encode($data);
 	}
 }
 
