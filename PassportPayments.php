@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class PassportPayments {
 
@@ -27,7 +27,7 @@ class PassportPayments {
 
 	/**
 		* Default constructor
-		* @param string clientId 
+		* @param string clientId
 		* @param string clientSecret
 	**/
 
@@ -57,7 +57,7 @@ class PassportPayments {
 		$this->client_secret = (string)$clientSecret;
 	}
 
-	
+
 	/**
 		* Initializing user api Key
 		* @param string appKey for PassportPayments application
@@ -87,7 +87,7 @@ class PassportPayments {
 	/**
 		* Function to get temporary card token
 		* @param string cardnumber
-        * @param string expmonth 
+        * @param string expmonth
         * @param string expyear
         * @param string cvv // optional
         * @param string nameoncard // optional
@@ -113,7 +113,7 @@ class PassportPayments {
 	/**
 		* Function to get pretransaction token
 		* @param string cardtmptoken
-        * @param string amount 
+        * @param string amount
         * @param string email
         * @return json
 	**/
@@ -140,7 +140,7 @@ class PassportPayments {
         * @param string lastname // optional
         * @param string email
         * @param string phone // optional
-        * @param string card_tmptoken 
+        * @param string card_tmptoken
         * @return json customer details
 	**/
 
@@ -229,7 +229,7 @@ class PassportPayments {
 		* @return json all customer details
 	**/
 
-	public function getAllCustomers(){	
+	public function getAllCustomers(){
 		$this->authenticate();
 		$uri = "/customers";
 		$request = $this->requestResource(self::METHOD_GET, $uri);
@@ -242,7 +242,7 @@ class PassportPayments {
 		* @return json customer details
 	**/
 
-	public function getCustomer( $customerId ){	
+	public function getCustomer( $customerId ){
 		$this->authenticate();
 		$uri = "/customers/".$customerId;
 		$request = $this->requestResource(self::METHOD_GET, $uri);
@@ -265,20 +265,20 @@ class PassportPayments {
 	/**
 		* Function to charge a card by card identifier
 		* @param string cardId - This is the cardid obtained from adding a card to with customer using card_tmptoken
-		* @param string amountInCents
-		* @param string productId
-		* @param string productQuantity
-		* @return string transactionId - if the transaction is successfull 
+		* @param string $params['amount']
+		* @param string $params['product_id']
+		* @param int $params['product_quantity']
+		* @param string $params['currency'] options : USD / CAD
+		* @return string transactionId - if the transaction is successfull
 	**/
 
-	public function captureByCardId( $cardId, $amountInCents = 0, $productId = 0, $productQuantity = 0 ){
+	public function captureByCardId( $cardId, $params = array() ){
 		$this->authenticate();
 		$uri = "/charges/capture/".$cardId;
 
-		$params = array();
-		if( !empty($amountInCents) ) $params['amount'] = $amountInCents;
-		if( !empty($productId) ) $params['product_id'] = $productId;
-		if( !empty($productQuantity) ) $params['product_quantity'] = $productQuantity;
+		if( empty($params['amount']) ) $params['amount'] = 0;
+		if( empty($params['product_id']) ) $params['product_id'] = 0;
+		if( empty($params['product_quantity']) ) $params['product_quantity'] = 0;
 
 		$response = $this->requestResource(self::METHOD_POST, $uri, $params);
 		if ($response->status == self::STATUS_SUCCESS){
@@ -291,24 +291,22 @@ class PassportPayments {
 	/**
 		* Function to charge a card by card temporary token
 		* @param string cardTmpToken - This is the card_tmptoken obtained during adding a new card
-		* @param string amountInCents
-		* @param string productId
-		* @param string productQuantity
-		* @return string transactionId - if the transaction is successfull 
+		* @param string $params['amount']
+		* @param string $params['product_id']
+		* @param int $params['product_quantity']
+		* @param string $params['currency'] options : USD / CAD
+		* @return string transactionId - if the transaction is successfull
 	**/
 
-	public function captureByCardTmpToken( $cardTmpToken, $amountInCents = 0, $productId = 0, $productQuantity = 0 ){
+	public function captureByCardTmpToken( $cardTmpToken, $params=array() ){
 		$this->authenticate();
 		$uri = "/charges/capture";
 
-		$params = array();
+		if( empty($params['amount']) ) $params['amount'] = 0;
+		if( empty($params['product_id']) ) $params['product_id'] = 0;
+		if( empty($params['product_quantity']) ) $params['product_quantity'] = 0;
 
-		if( !empty($amountInCents) ) $params['amount'] = $amountInCents;
-		if( !empty($productId) ) $params['product_id'] = $productId;
-		if( !empty($productQuantity) ) $params['product_quantity'] = $productQuantity;
-		
 		$params['card_tmptoken'] = $cardTmpToken;
-
 		$response = $this->requestResource(self::METHOD_POST, $uri, $params);
 		if ($response->status == self::STATUS_SUCCESS){
 			return $response->data->transactionid;
@@ -335,7 +333,7 @@ class PassportPayments {
 	/**
 		* Function to void a transaction
 		* @param string transactionId
-		* @return string transactionId - if the transaction is successfull 
+		* @return string transactionId - if the transaction is successfull
 	**/
 
 	public function transactionVoid( $transactionId ){
@@ -349,12 +347,16 @@ class PassportPayments {
 	/**
 		* Function to refund a transaction
 		* @param string transactionId
-		* @return string transactionId - if the transaction is successfull 
+		* @return string transactionId - if the transaction is successfull
 	**/
 
-	public function transactionRefund( $transactionId ){
+	public function transactionRefund( $transactionId, $amount = 0 ){
 		$this->authenticate();
-		$uri = "/charges/refund/".$transactionId;
+		if (!$amount){
+			$uri = "/charges/refund/".$transactionId;
+		} else {
+			$uri = "/charges/refund/".$transactionId."/".$amount;
+		}
 
 		$response = $this->requestResource(self::METHOD_POST, $uri);
 		return $response;
@@ -375,6 +377,17 @@ class PassportPayments {
 		if ($response->status == self::STATUS_SUCCESS){
 			return $response->data;
 		}
+		return $response;
+	}
+
+	/**
+		* Function to get a transaction details
+	**/
+
+	public function getTransaction( $transactionId ) {
+		$this->authenticate();
+		$uri = "/charge/".$transactionId;
+		$response = $this->requestResource(self::METHOD_GET, $uri);
 		return $response;
 	}
 
@@ -408,7 +421,7 @@ class PassportPayments {
 			            'client_secret' => $this->client_secret,
 			            'grant_type' => 'client_credentials'
 			        	);
-        
+
         $response = $this->requestResource(self::METHOD_POST, $uri, $params);
 
         if(!empty($response) && $response->status == self::STATUS_SUCCESS){
@@ -434,9 +447,9 @@ class PassportPayments {
 
         $params_uri = '';
         $curlOptions = array();
-       
+
         switch($method){
-            
+
             case self::METHOD_GET:
                 foreach ($params as $key => $value) {
                     $params_uri .= $key . '=' . urlencode($value) . '&';
@@ -458,19 +471,16 @@ class PassportPayments {
                 break;
         }
 
-        error_log($apiUrl);
-        error_log(json_encode($params));
         $curlOptions[CURLOPT_URL] = $apiUrl;
         $curlOptions[CURLOPT_RETURNTRANSFER] = true;
         $curlOptions[CURLOPT_SSL_VERIFYPEER] = false;
         $curlOptions[CURLOPT_SSL_VERIFYHOST] = false;
 
-        
+
         $curl = curl_init();
         $setopt = curl_setopt_array($curl, $curlOptions);
         $auth = curl_exec($curl);
         $response = json_decode($auth);
-        error_log(json_encode($response));
         return $response;
 	}
 
