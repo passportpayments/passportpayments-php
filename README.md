@@ -14,7 +14,7 @@ $pp = new PassportPayments($appId, $appSecret, $publicKey, $endPoint);
 * $endPoint is by default pointed to sandbox. So, if you don’t pass endPoint, it’ll take you to the sandbox. If you are on live mode, and using live mode credentials, then use 'https://api.passportpayments.com' as the endpoint.
 
 
-### Get card Token: 
+### Get card Token:
 Get the card token like this -
 ```php
 $cardnumber = "4111111111111111";
@@ -38,7 +38,7 @@ Here you get the customer id. Now you can perform all the customer based operati
 
 
 
-### Save Customer : 
+### Save Customer :
 Now you can add a customer like this -
 ```php
 $firstname = "Harry";
@@ -63,7 +63,7 @@ $customerAdd = $pp->saveCustomer ($firstname, $lastname, $email, $phone, $cardTe
 ```
 Here you get the customer id. Now you can perform all the customer based operations with this id.
 
-### Update Customer : 
+### Update Customer :
 Since you have added a customer, you might want to update his details -
 ```php
 $customerId = ‘cus_xxxxxxxxxxxxx’;
@@ -141,7 +141,7 @@ $cardUpdate = $pp->updateCard ($customerId, $cardId, $updates);
 ```
 
 * $updates is an array, and the allowed parameters for updates are: ‘expmonth’, ‘expyear’
-      
+
 ```json
 {
     "data": "",
@@ -267,26 +267,25 @@ Response :
 ### Charge a card
 
 There are 2 ways to do this.
-* Charging the card using the card id that we get during associating a card 
+* Charging the card using the card id that we get during associating a card
 * Using the temporary token to charge the card directly.
 
 ```php
 	//Charging card by card id:
 	$cardId = 'card_xxxxxxxxxxxxxx';
 	$amountInCent = 0;
-	$productId = 'prod_xxxxxxxxxxxxx';
-	$producQuant = 2;
-	$resp = $pp->captureByCardId($cardId, $amountInCent, $productId, $producQuant);
+	$params['amount']=200;
+    $params['currency']='USD';
+	$resp = $pp->captureByCardId($cardId, $params);
 OR
 	//Chargin card by card temporary token:
 	$cartoken = 'tok_xxxxxxxxxxxxxx';
-	$amountInCent = 0;
-	$productId = 'prod_xxxxxxxxxxxxx';
-	$producQuant = 2;
-	$resp = $pp->captureByCardTmpToken($cardId, $amountInCent, $productId, $producQuant);
+	$params['amount']=200;
+    $params['currency']='USD';
+    $resp = $pp->captureByCardTmpToken($cartoken, $params);
 ```
 Response:
-       
+
  ```json
 {
     "status": 200,
@@ -305,7 +304,8 @@ In order to refund a transaction, you need a transaction id.
 
 ```php
 $transactionId = 'tran_54807f698f64d';
-$resp = $pp->transactionRefund( $transactionId );
+$amount = 120; // in cents
+$resp = $pp->transactionRefund( $transactionId, $amount ); // amount is an optional parameter
 ```
 
 Response:

@@ -347,6 +347,7 @@ class PassportPayments {
 	/**
 		* Function to refund a transaction
 		* @param string transactionId
+		* @param int amount // optional
 		* @return string transactionId - if the transaction is successfull
 	**/
 
