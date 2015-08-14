@@ -34,7 +34,7 @@ $resp = $pp->getCardToken( $cardnumber, $expmonth, $expyear, $cvv, $nameoncard )
     "status" : 200
 }
 ```
-Here you get the customer id. Now you can perform all the customer based operations with this id.
+Here you get the temporary car token. Now you can associate this card with a customer or directly charge this card.
 
 
 
