@@ -118,7 +118,7 @@ class PassportPayments {
         * @return json
 	**/
 
-	public function getPreTransactionToken ( $cardtmptoken, $amount, $email = "" ) {
+	public function getPreTransactionToken ( $cardtmptoken, $amount, $email = "", $extra_params=array() ) {
 
 		$this->authenticate();
 
@@ -127,6 +127,7 @@ class PassportPayments {
 		$params['amount'] = $amount;
 		$params['email'] = $email;
 		$params['appkey'] = $this->public_key;
+		$params = array_merge($params,$extra_params);
 
 		$request = $this->requestResource(self::METHOD_GET, $uri, $params);
 		return $request;
