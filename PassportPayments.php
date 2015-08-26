@@ -281,9 +281,9 @@ class PassportPayments {
 		if( empty($params['product_quantity']) ) $params['product_quantity'] = 0;
 
 		$response = $this->requestResource(self::METHOD_POST, $uri, $params);
-		if ($response->status == self::STATUS_SUCCESS){
-			return $response->data->transactionid;
-		}
+		// if ($response->status == self::STATUS_SUCCESS){
+		// 	//return $response->data->transactionid;
+		// }
 		return $response;
 	}
 
@@ -323,7 +323,7 @@ class PassportPayments {
 
 	public function captureByPreTransactionToken( $preTransactionToken ) {
 		$this->authenticate();
-		$uri = "/charges/capturebytoken/".$preTransactionToken;
+		$uri = "/charges/capturebypretransactiontoken/".$preTransactionToken;
 		$response = $this->requestResource(self::METHOD_POST, $uri);
 		return $response;
 	}
