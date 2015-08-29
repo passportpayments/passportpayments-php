@@ -413,6 +413,64 @@ class PassportPayments {
 	}
 
 	/**
+		* Function to add wallet cash
+		* @param $customer_id
+		* @param $amount_in_cents
+		* @return response
+	**/
+
+	public function addWalletCash( $customer_id, $amount_in_cents ) {
+		$this->authenticate();
+		$uri = "/wallet/addcash/".$customer_id."/".$amount_in_cents;
+		$response = $this->requestResource(self::METHOD_POST, $uri);
+		return $response;
+	}
+
+	/**
+		* Function to charge wallet cash
+		* @param $customer_id
+		* @param $amount_in_cents
+		* @return response
+	**/
+
+	public function chargeWalletCash( $customer_id, $amount_in_cents ) {
+		$this->authenticate();
+		$uri = "/wallet/chargecash/".$customer_id."/".$amount_in_cents;
+		$response = $this->requestResource(self::METHOD_POST, $uri);
+		return $response;
+	}
+
+	/**
+		* Function to get wallet balance
+		* @param $customer_id
+		* @return response
+	**/
+
+	public function getWalletBalance( $customer_id ) {
+		$this->authenticate();
+		$uri = "/wallet/balance/".$customer_id;
+		$response = $this->requestResource(self::METHOD_GET, $uri);
+		return $response;
+	}
+
+	/**
+		* Function to get wallet balance
+		* @param $customer_id
+		* @return response
+	**/
+
+	public function refundTransaction( $transaction_id, $amount_in_cents = 0 ) {
+		$this->authenticate();
+		if ($amount_in_cents) {
+			$uri = "/wallet/refund/".$transaction_id."/".$amount_in_cents;
+		} else {
+			$uri = "/wallet/refund/".$transaction_id;
+		}
+		$response = $this->requestResource(self::METHOD_POST, $uri);
+		return $response;
+	}
+
+	/**
 		* Funtion to get authentication token from oauth
 	**/
 
