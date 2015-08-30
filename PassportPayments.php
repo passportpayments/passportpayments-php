@@ -471,6 +471,19 @@ class PassportPayments {
 	}
 
 	/**
+		* Function for reward redemption
+		* @param $customer_id
+		* @return response
+	**/
+
+	public function useReward( $customer_id ) {
+		$this->authenticate();
+		$uri = "/reward/use/".$customer_id;
+		$response = $this->requestResource(self::METHOD_POST, $uri);
+		return $response;
+	}
+
+	/**
 		* Funtion to get authentication token from oauth
 	**/
 
